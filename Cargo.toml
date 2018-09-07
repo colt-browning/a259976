@@ -1,0 +1,9 @@
+[package]
+name = "a259976"
+version = "0.1.0"
+authors = ["colt-browning <zabolotis@mail.ru>"]
+
+[dependencies]
+integer-partitions = "0.1"
+num = "0.2"
+permutohedron = "0.2"
