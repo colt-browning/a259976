@@ -17,12 +17,25 @@ type Rational = Ratio<Int>;
 type RP = Polynomial<Rational>;
 
 fn main() {
-	for p in 3..=9 {
-		let qmax = p*(p-1)/4;
-		for q in 0..=qmax {
-			println!("p={}, q={}: {}", p, q, t(q, p))
+	let mut args = std::env::args().skip(1);
+	match args.next() {
+		None => {
+			for p in 0..=9 {
+				let qmax = p*(p-1)/4;
+				for q in 0..=qmax {
+					println!("p={}, q={}: {}", p, q, t(q, p))
+				}
+				println!("");
+			}
+		},
+		Some(ref s) if s == "2" => {
+			for q in 0..=8 {
+				println!("{}", t(q, 2*q));
+			}
+		},
+		_ => {
+			println!("Run without command line arguments for A259976 or with argument '2' for A005368.");
 		}
-		println!("");
 	}
 }
 
@@ -88,7 +101,7 @@ fn t(q: usize, p: usize) -> Int {
 		r += xiq.eval(sigma)
 	});
 	r /= factorial(p) as Int;
-	if !r.is_integer() { println!("{}", r) };
+	if !r.is_integer() { eprintln!("{}", r) };
 	assert!(r.is_integer());
 	*r.numer()
 }
