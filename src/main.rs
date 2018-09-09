@@ -7,7 +7,7 @@ extern crate integer_partitions;
 use integer_partitions::Partitions;
 
 extern crate permutohedron;
-use permutohedron::{heap_recursive as permutations, factorial};
+use permutohedron::factorial;
 
 mod polynomial;
 use polynomial::Polynomial;
@@ -21,7 +21,7 @@ fn main() {
 	match args.next() {
 		None => {
 			for p in 0..=9 {
-				let qmax = p*(p-1)/4;
+				let qmax = if p == 0 { 0 } else { p*(p-1)/4 };
 				for q in 0..=qmax {
 					println!("p={}, q={}: {}", p, q, t(q, p))
 				}
@@ -29,7 +29,7 @@ fn main() {
 			}
 		},
 		Some(ref s) if s == "2" => {
-			for q in 0..=8 {
+			for q in 0..=10 {
 				println!("{}", t(q, 2*q));
 			}
 		},
@@ -93,14 +93,28 @@ fn xi(q: usize) -> RP {
 fn t(q: usize, p: usize) -> Int {
 // https://oeis.org/A259976
 // see the linked Merris & Watkins paper, pp. 539-541
+	if q == 0 {
+		return Int::one();
+	}
 	let xiq = xi(q); // cache?
 	let mut r = Rational::zero();
-	let mut range: Vec<_> = (0..p).collect();
-	permutations(&mut range, |pp| {
-		let sigma = cycles(edges(Vec::from(pp)));
-		r += xiq.eval(sigma)
-	});
-	r /= factorial(p) as Int;
+	let mut ppp = Partitions::new(p);
+	while let Some(pp) = ppp.next() {
+		let t = Rational::new(1,
+			(pp.iter().product::<usize>() *
+			rl(p, pp).iter().map(|&x| { factorial(x as usize) }).product::<usize>()) as Int);
+		let mut perm = Vec::new();
+		let mut s = 0;
+		for &cyc in pp {
+			for i in 1..cyc {
+				perm.push(s + i)
+			}
+			perm.push(s);
+			s += cyc;
+		}
+		let sigma = cycles(edges(perm));
+		r += xiq.eval(sigma) * t;
+	}
 	if !r.is_integer() { eprintln!("{}", r) };
 	assert!(r.is_integer());
 	*r.numer()
