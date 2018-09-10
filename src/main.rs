@@ -151,3 +151,14 @@ fn edges(p: Vec<usize>) -> Vec<usize> {
 	}
 	r
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	
+	#[test]
+	fn a259976() {
+		assert_eq!((0..=7).map(|q| { t(q, 6) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 4, 6, 6, 3]);
+		assert_eq!((0..=8).map(|q| { t(q, 7) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 5, 11, 20, 24, 32]);
+	}
+}
