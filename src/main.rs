@@ -1,7 +1,7 @@
 // This crate is licensed under Apache License 2.0 or CC BY 4.0 at your option.
 
 extern crate num;
-use num::{Zero, One, rational::Ratio};
+use num::{Zero, One, rational::Ratio, BigInt};
 
 extern crate integer_partitions;
 use integer_partitions::Partitions;
@@ -9,7 +9,7 @@ use integer_partitions::Partitions;
 mod polynomial;
 use polynomial::Polynomial;
 
-type Int = i128;
+type Int = BigInt;
 type Rational = Ratio<Int>;
 type RP = Polynomial<Rational>;
 
@@ -17,7 +17,7 @@ fn main() {
 	let mut args = std::env::args().skip(1);
 	match args.next() {
 		None => {
-			for p in 0..=9 {
+			for p in 0.. {
 				let qmax = if p == 0 { 0 } else { p*(p-1)/4 };
 				for q in 0..=qmax {
 					println!("p={}, q={}: {}", p, q, t(q, p))
@@ -26,7 +26,7 @@ fn main() {
 			}
 		},
 		Some(ref s) if s == "2" => {
-			for q in 0..=12 {
+			for q in 0.. {
 				println!("{}", t(q, 2*q));
 			}
 		},
@@ -36,7 +36,7 @@ fn main() {
 	}
 }
 
-fn rl(n: usize, a: &[usize]) -> Vec<Int> {
+fn rl(n: usize, a: &[usize]) -> Vec<usize> {
 	let mut v = vec![0; n];
 	for &x in a {
 		v[x - 1] += 1;
@@ -58,12 +58,12 @@ fn xi(q: usize) -> RP {
 	let mut pp = Partitions::new(q - 1);
 	while let Some(sigma) = pp.next() {
 		let r = rl(q - 1, sigma);
-		let mut term = RP::from(vec![(-2 * r[0] - 1).into(), 1.into()]) * Rational::new(1, r[0]+1);
+		let mut term = RP::from(vec![Rational::from(-2 * Int::from(r[0]) - 1), Rational::one()]) * Rational::new(Int::one(), Int::from(r[0]+1));
 		for (i, &v) in r.iter().enumerate() {
 			let mut f = vec![0; q];
 			f[i] = 1;
-			for j in 1..=v {
-				term = term * (RP::monomial(f.clone(), Rational::from(1)) - Rational::from(j-1)) * Rational::new(1, j);
+			for j in 1..=usize::from(v) {
+				term = term * (RP::monomial(f.clone(), Rational::one()) - Rational::from(Int::from(j-1))) * Rational::new(Int::one(), Int::from(j));
 			}
 		}
 		s = s + term;
@@ -71,7 +71,7 @@ fn xi(q: usize) -> RP {
 	let mut pp = Partitions::new(q);
 	while let Some(beta) = pp.next() {
 		let r = rl(q, beta);
-		if r[0] != 0 {
+		if !r[0].is_zero() {
 			continue
 		}
 		let mut term = RP::one();
@@ -79,7 +79,7 @@ fn xi(q: usize) -> RP {
 			let mut f = vec![0; q];
 			f[i] = 1;
 			for j in 1..=v {
-				term = term * (RP::monomial(f.clone(), Rational::from(1)) - Rational::from(j-1)) * Rational::new(1, j);
+				term = term * (RP::monomial(f.clone(), Rational::one()) - Rational::from(Int::from(j-1))) * Rational::new(Int::one(), Int::from(j));
 			}
 		}
 		s = s + term;
@@ -97,29 +97,35 @@ fn t(q: usize, p: usize) -> Int {
 	let mut r = Rational::zero();
 	let mut ppp = Partitions::new(p);
 	while let Some(pp) = ppp.next() {
-		let t = Rational::new(1,
-			pp.iter().product::<usize>() as Int *
-			rl(p, pp).iter().map(|&x| { (1..=x).product::<Int>() }).product::<Int>());
-		let mut perm = Vec::new();
-		let mut s = 0;
-		for &cyc in pp {
-			for i in 1..cyc {
-				perm.push(s + i)
-			}
-			perm.push(s);
-			s += cyc;
-		}
-		let sigma = cycles(edges(perm));
+		let t = // number of partitions with set of cycles pp divided by p!
+			Rational::new(Int::one(),
+			Int::from(pp.iter().product::<usize>()) *
+			rl(p, pp).iter().map(|&x| { (1..=x).map(|n| { Int::from(n) }).product::<Int>() }).product::<Int>());
+		let sigma = cycles(edges(from_cycles(pp)));
 		r += xiq.eval(sigma) * t;
 	}
 	if !r.is_integer() { eprintln!("{}", r) };
 	assert!(r.is_integer());
-	*r.numer()
+	r.to_integer()
+}
+
+fn from_cycles(pp: &[usize]) -> Vec<usize> {
+// constructs a permutation from cycles
+	let mut perm = Vec::new();
+	let mut s = 0;
+	for &cyc in pp {
+		for i in 1..cyc {
+			perm.push(s + i)
+		}
+		perm.push(s);
+		s += cyc;
+	}
+	perm
 }
 
 fn cycles(p: Vec<usize>) -> Vec<Int> {
 // counts cycles of each length in a permutation
-	let mut r = vec![0; p.len()];
+	let mut r = vec![Int::zero(); p.len()];
 	for i0 in 0..p.len() {
 		let mut i = i0;
 		let mut j = 0;
@@ -128,7 +134,7 @@ fn cycles(p: Vec<usize>) -> Vec<Int> {
 			j += 1;
 		}
 		if p[i] == i0 {
-			r[j] += 1;
+			r[j] += Int::one();
 		}
 	}
 	r
@@ -155,7 +161,7 @@ mod tests {
 	
 	#[test]
 	fn a259976() {
-		assert_eq!((0..=7).map(|q| { t(q, 6) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 4, 6, 6, 3]);
-		assert_eq!((0..=8).map(|q| { t(q, 7) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 5, 11, 20, 24, 32]);
+		assert_eq!((0..=7).map(|q| { t(q, 6) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 4, 6, 6, 3].into_iter().map(|x| { Int::from(x) }).collect::<Vec<_>>());
+		assert_eq!((0..=8).map(|q| { t(q, 7) }).collect::<Vec<_>>(), vec![1, 0, 1, 3, 5, 11, 20, 24, 32].into_iter().map(|x| { Int::from(x) }).collect::<Vec<_>>());
 	}
 }
