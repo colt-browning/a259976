@@ -6,9 +6,6 @@ use num::{Zero, One, rational::Ratio};
 extern crate integer_partitions;
 use integer_partitions::Partitions;
 
-extern crate permutohedron;
-use permutohedron::factorial;
-
 mod polynomial;
 use polynomial::Polynomial;
 
@@ -29,7 +26,7 @@ fn main() {
 			}
 		},
 		Some(ref s) if s == "2" => {
-			for q in 0..=10 {
+			for q in 0..=12 {
 				println!("{}", t(q, 2*q));
 			}
 		},
@@ -101,8 +98,8 @@ fn t(q: usize, p: usize) -> Int {
 	let mut ppp = Partitions::new(p);
 	while let Some(pp) = ppp.next() {
 		let t = Rational::new(1,
-			(pp.iter().product::<usize>() *
-			rl(p, pp).iter().map(|&x| { factorial(x as usize) }).product::<usize>()) as Int);
+			pp.iter().product::<usize>() as Int *
+			rl(p, pp).iter().map(|&x| { (1..=x).product::<Int>() }).product::<Int>());
 		let mut perm = Vec::new();
 		let mut s = 0;
 		for &cyc in pp {
