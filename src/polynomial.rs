@@ -1,4 +1,4 @@
-use ::num::{Zero, One};
+use num::{Zero, One};
 use std::{ops, collections::HashMap};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -34,7 +34,7 @@ impl<T> Zero for Polynomial<T> where T: Zero + Clone + ops::AddAssign {
 	}
 }
 
-impl<T> One for Polynomial<T> where T: Zero + One + Clone + ::std::iter::Sum + PartialEq + ops::AddAssign {
+impl<T> One for Polynomial<T> where T: Zero + One + Clone + std::iter::Sum + PartialEq + ops::AddAssign {
 	fn one() -> Self {
 		Polynomial::monomial(Vec::new(), T::one())
 	}
@@ -204,7 +204,7 @@ impl<T> ops::Mul<T> for Polynomial<T> where T: Zero + ops::Mul<Output=T> + Clone
 	}
 }
 
-impl<T> ops::Mul for Polynomial<T> where T: Zero + ops::Mul<Output=T> + Clone + ::std::iter::Sum + ops::AddAssign {
+impl<T> ops::Mul for Polynomial<T> where T: Zero + ops::Mul<Output=T> + Clone + std::iter::Sum + ops::AddAssign {
 	type Output = Polynomial<T>;
 	fn mul(mut self, mut rhs: Self) -> Self {
 		self.extend(rhs.nvars);
