@@ -1,13 +1,11 @@
 // This crate is licensed under Apache License 2.0 or CC BY 4.0 at your option.
 
-extern crate num;
 use num::{Zero, One, rational::Ratio, BigInt};
 
-extern crate integer_partitions;
 use integer_partitions::Partitions;
 
 mod polynomial;
-use polynomial::Polynomial;
+use crate::polynomial::Polynomial;
 
 type Int = BigInt;
 type Rational = Ratio<Int>;

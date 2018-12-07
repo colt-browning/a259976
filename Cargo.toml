@@ -1,7 +1,8 @@
 [package]
 name = "a259976"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["colt-browning <zabolotis@mail.ru>"]
+edition = "2018"
 
 [dependencies]
 integer-partitions = "0.1"
