@@ -224,14 +224,14 @@ impl<T> ops::Mul for Polynomial<T> where T: Zero + ops::Mul<Output=T> + Clone + 
 mod tests {
 	use super::*;
 		
-    #[test]
-    fn eval() {
+	#[test]
+	fn eval() {
 		let p = Polynomial::from(vec![4.0, 5.0, 6.0]);
 		let x = 2;
-        assert_eq!(p.eval(vec!(x)), 38.0);
+		assert_eq!(p.eval(vec!(x)), 38.0);
 		let x = 2.0;
-        assert_eq!(p.eval(vec!(x)), 38.0);
-    }
+		assert_eq!(p.eval(vec!(x)), 38.0);
+	}
 	
 	#[test]
 	fn extend() {

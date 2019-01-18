@@ -5,7 +5,7 @@ use num::{Zero, One, rational::Ratio, BigInt};
 use integer_partitions::Partitions;
 
 mod polynomial;
-use crate::polynomial::Polynomial;
+use polynomial::Polynomial;
 
 type Int = BigInt;
 type Rational = Ratio<Int>;
@@ -20,7 +20,7 @@ fn main() {
 				for q in 0..=qmax {
 					println!("p={}, q={}: {}", p, q, t(q, p))
 				}
-				println!("");
+				println!();
 			}
 		},
 		Some(ref s) if s == "2" => {
@@ -102,8 +102,7 @@ fn t(q: usize, p: usize) -> Int {
 		let sigma = cycles(edges(from_cycles(pp)));
 		r += xiq.eval(sigma) * t;
 	}
-	if !r.is_integer() { eprintln!("{}", r) };
-	assert!(r.is_integer());
+	if !r.is_integer() { panic!("T(p={}, q={}) = {} is not integer", p, q, r) };
 	r.to_integer()
 }
 
@@ -139,7 +138,7 @@ fn cycles(p: Vec<usize>) -> Vec<Int> {
 }
 
 fn edges(p: Vec<usize>) -> Vec<usize> {
-// turns a permutations of vertices of K_p to a permutation of its edges
+// turns a permutation of vertices of K_p into a permutation of its edges
 	let mut r = Vec::new();
 	for (v2, w2) in p.iter().enumerate() {
 		for (v1, w1) in p.iter().enumerate() {
