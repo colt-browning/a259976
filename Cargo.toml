@@ -1,6 +1,6 @@
 [package]
 name = "a259976"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["colt-browning <zabolotis@mail.ru>"]
 edition = "2018"
 

@@ -75,12 +75,7 @@ impl<T> Polynomial<T> where T: Zero + Clone + ops::AddAssign {
 }
 	
 impl<T> Polynomial<T> where T: Zero + Clone + One + ops::AddAssign {
-	pub fn eval<X>(&self, xx: Vec<X>) -> T
-		where X:
-			Clone +
-			Zero +
-			Into<T>
-	{
+	pub fn eval<X>(&self, xx: Vec<X>) -> T where X: Into<T> {
 		let mut x: Vec<T> = xx.into_iter().map(|t| { t.into() }).collect();
 		for _ in x.len()..self.nvars {
 			x.push(T::zero());
